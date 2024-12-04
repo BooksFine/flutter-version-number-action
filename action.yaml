@@ -1,5 +1,5 @@
 name: flutter-version-number
-description: "Reads the version number of the pubspec.yaml"
+description: "Reads the version number and build number from pubspec.yaml"
 author: NiklasLehnfeld
 branding:
   icon: "archive"
@@ -12,12 +12,18 @@ inputs:
 outputs:
   version-number:
     description: "Version number"
-    value: ${{ steps.read-yaml.outputs.version }}
+    value: ${{ steps.read-yaml.outputs.version-number }}
+  build-number:
+    description: "Build number"
+    value: ${{ steps.read-yaml.outputs.build-number }}
 runs:
   using: "composite"
   steps:
     - id: read-yaml
       run: |
         VERSION=`cat ${{inputs.file-path}} | grep -m 1 -o 'version:[^:]*' | cut -f2 -d":" | xargs`
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        VERSION_NUMBER=`echo $VERSION | cut -d'+' -f1`
+        BUILD_NUMBER=`echo $VERSION | cut -d'+' -f2`
+        echo "version-number=$VERSION_NUMBER" >> $GITHUB_OUTPUT
+        echo "build-number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
       shell: bash
